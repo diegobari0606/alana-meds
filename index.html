@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f766e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Alana">
+    <title>Alana — Control de medicamentos</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <span class="app-header__avatar" aria-hidden="true">🐾</span>
+                <div>
+                    <h1 class="app-header__title">Alana</h1>
+                    <p class="app-header__subtitle" id="header-subtitle">Control de medicamentos</p>
+                </div>
+            </div>
+            <span class="sync-chip" id="sync-chip" hidden></span>
+            <button type="button" class="icon-button" id="btn-settings" aria-label="Ajustes y respaldo">
+                <span aria-hidden="true">⋯</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="boot" id="boot">
+        <div class="boot__spinner" aria-hidden="true"></div>
+        <p class="boot__text">Conectando con la nube…</p>
+    </div>
+
+    <main class="app-main" id="app-main" aria-live="polite">
+        <!-- Las vistas se renderizan aquí -->
+    </main>
+
+    <nav class="tabbar" aria-label="Secciones">
+        <button type="button" class="tabbar__item" data-route="today" aria-current="page">
+            <span class="tabbar__icon" aria-hidden="true">📅</span>
+            <span class="tabbar__label">Hoy</span>
+        </button>
+        <button type="button" class="tabbar__item" data-route="meds">
+            <span class="tabbar__icon" aria-hidden="true">💊</span>
+            <span class="tabbar__label">Tratamientos</span>
+        </button>
+        <button type="button" class="tabbar__item" data-route="glucose">
+            <span class="tabbar__icon" aria-hidden="true">🩸</span>
+            <span class="tabbar__label">Glicemia</span>
+        </button>
+        <button type="button" class="tabbar__item" data-route="history">
+            <span class="tabbar__icon" aria-hidden="true">🕐</span>
+            <span class="tabbar__label">Historial</span>
+        </button>
+    </nav>
+
+    <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+        <div class="sheet__handle" aria-hidden="true"></div>
+        <div class="sheet__header">
+            <h2 class="sheet__title" id="sheet-title"></h2>
+            <button type="button" class="icon-button" id="sheet-close" aria-label="Cerrar">
+                <span aria-hidden="true">✕</span>
+            </button>
+        </div>
+        <div class="sheet__body" id="sheet-body"></div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
