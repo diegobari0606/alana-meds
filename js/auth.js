@@ -25,7 +25,7 @@ import { app } from './firebase.js';
  * Debe coincidir con la lista de las reglas de Firestore.
  */
 export const ALLOWED_EMAILS = [
-    // Pendiente: correos de Diego y sus papás.
+    'partners@aditumcr.com'
 ];
 
 const auth = getAuth(app);

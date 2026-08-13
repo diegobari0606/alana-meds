@@ -1,0 +1,33 @@
+// Reglas de seguridad de Cloud Firestore para el proyecto `alanas-meds`.
+//
+// Se publican desde la consola de Firebase:
+//   Firestore Database → pestaña Reglas → pegar → Publicar
+//
+// La lista de correos tiene que coincidir con ALLOWED_EMAILS en js/auth.js.
+// Esta es la protección real: el control del lado del navegador solo evita
+// mostrar la interfaz, pero cualquiera puede saltárselo.
+//
+// IMPORTANTE: publicar estas reglas *después* de confirmar que el inicio de
+// sesión funciona. Si se publican antes, la app deja de leer y escribir.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autorizado() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email.lower() in [
+               'partners@aditumcr.com'
+             ];
+    }
+
+    match /treatments/{doc}   { allow read, write: if autorizado(); }
+    match /doseLogs/{doc}     { allow read, write: if autorizado(); }
+    match /glucose/{doc}      { allow read, write: if autorizado(); }
+    match /notes/{doc}        { allow read, write: if autorizado(); }
+    match /appointments/{doc} { allow read, write: if autorizado(); }
+    match /settings/{doc}     { allow read, write: if autorizado(); }
+  }
+}
