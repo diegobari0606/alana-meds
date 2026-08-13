@@ -23,7 +23,7 @@ const firebaseConfig = {
     appId: '1:696708349461:web:6945d2653cd3cc8ba2181c'
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 /**
  * Caché persistente: la app funciona sin señal y sincroniza sola al volver.

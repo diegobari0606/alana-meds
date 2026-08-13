@@ -35,6 +35,19 @@
         <p class="boot__text">Conectando con la nube…</p>
     </div>
 
+    <div class="gate" id="gate" hidden>
+        <div class="gate__card">
+            <span class="gate__icon" aria-hidden="true">🐾</span>
+            <h2 class="gate__title">Alana</h2>
+            <p class="gate__text">Control de medicamentos</p>
+            <button type="button" class="btn btn--primary btn--block" id="gate-signin">
+                Entrar con Google
+            </button>
+            <p class="gate__error" id="gate-error" hidden></p>
+            <p class="gate__note">Solo pueden entrar las cuentas autorizadas.</p>
+        </div>
+    </div>
+
     <main class="app-main" id="app-main" aria-live="polite">
         <!-- Las vistas se renderizan aquí -->
     </main>

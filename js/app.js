@@ -13,6 +13,7 @@ import {
     openSheet, closeSheet, toast, confirmAction, downloadFile, readFileAsText
 } from './ui.js';
 
+import * as auth from './auth.js';
 import * as todayView from './views/today.js';
 import * as treatmentsView from './views/treatments.js';
 import * as glucoseView from './views/glucose.js';
@@ -22,6 +23,8 @@ const main = document.getElementById('app-main');
 const subtitle = document.getElementById('header-subtitle');
 const syncChip = document.getElementById('sync-chip');
 const boot = document.getElementById('boot');
+const gate = document.getElementById('gate');
+const gateError = document.getElementById('gate-error');
 const tabs = document.querySelectorAll('.tabbar__item');
 
 const VIEWS = {
@@ -151,8 +154,13 @@ function openSettings() {
             <button type="button" class="btn btn--ghost btn--block" data-action="export">Descargar respaldo</button>
             <button type="button" class="btn btn--ghost btn--block" data-action="import">Restaurar respaldo</button>
             <input type="file" id="import-file" accept="application/json,.json" hidden>
+            <button type="button" class="btn btn--ghost btn--block" data-action="signout">Cerrar sesión</button>
             <button type="button" class="btn btn--danger btn--block" data-action="reset">Restablecer receta original</button>
         </div>
+
+        <p class="detail__meta" style="text-align:center">
+            Sesión iniciada como ${esc((auth.currentUser() && auth.currentUser().email) || '—')}
+        </p>
 
         <p class="disclaimer" style="margin-top:20px">
             Los datos se guardan en la nube y se comparten entre todos los dispositivos
@@ -198,6 +206,11 @@ function openSettings() {
                 }
             });
 
+            body.querySelector('[data-action="signout"]').addEventListener('click', async () => {
+                closeSheet();
+                await auth.signOutUser();
+            });
+
             body.querySelector('[data-action="reset"]').addEventListener('click', () => {
                 confirmAction({
                     title: 'Restablecer receta original',
@@ -228,15 +241,78 @@ store.subscribe(() => {
     if (store.isReady()) refresh();
 });
 
-try {
-    await store.init();
-} catch (error) {
-    console.error('No se pudo conectar con Firestore:', error);
-    toast('No se pudo conectar con la nube.');
+/** `store.init()` registra los listeners de Firestore: se llama una sola vez. */
+let storeStarted = false;
+
+function showGate(message = '') {
+    boot.hidden = true;
+    gate.hidden = false;
+    gateError.textContent = message;
+    gateError.hidden = !message;
 }
 
-boot.hidden = true;
-navigate('today');
+async function startSession(user) {
+    if (auth.isConfigured()) {
+        if (!user) {
+            showGate();
+            return;
+        }
+
+        if (!auth.isAllowed(user)) {
+            await auth.signOutUser();
+            showGate(`La cuenta ${user.email} no está autorizada para ver los datos de Alana.`);
+            return;
+        }
+    }
+
+    gate.hidden = true;
+
+    if (!storeStarted) {
+        boot.hidden = false;
+        try {
+            await store.init();
+            storeStarted = true;
+        } catch (error) {
+            console.error('No se pudo conectar con Firestore:', error);
+            toast('No se pudo conectar con la nube.');
+        }
+    }
+
+    boot.hidden = true;
+    navigate('today');
+}
+
+const signInButton = document.getElementById('gate-signin');
+
+signInButton.addEventListener('click', async () => {
+    gateError.hidden = true;
+    signInButton.disabled = true;
+
+    const result = await auth.signIn();
+
+    signInButton.disabled = false;
+    if (!result.ok) {
+        showGate(result.error);
+        return;
+    }
+    // Con redirección la página se recarga sola; con ventana emergente hay usuario.
+    if (result.user) await startSession(result.user);
+});
+
+if (auth.isConfigured()) {
+    await startSession(await auth.waitForSession());
+
+    // Si la sesión se cierra o expira, se vuelve a la pantalla de acceso.
+    auth.watchSession(user => {
+        if (!user || !auth.isAllowed(user)) showGate();
+    });
+} else {
+    console.warn(
+        'Sin cuentas autorizadas en auth.js: la app abre sin inicio de sesión. ' +
+        'Completá ALLOWED_EMAILS y las reglas de Firestore antes de publicarla.'
+    );
+    await startSession(null);
+}
 
 // Repinta cada minuto para que los estados «atrasada» avancen solos.
 setInterval(() => {
