@@ -6,7 +6,7 @@
  * Los datos del usuario no pasan por acá: viven en localStorage.
  */
 
-const CACHE_NAME = 'alana-meds-v3';
+const CACHE_NAME = 'alana-meds-v4';
 
 /** El SDK de Firebase vive en este host; se guarda en caché al usarlo. */
 const SDK_HOST = 'www.gstatic.com';

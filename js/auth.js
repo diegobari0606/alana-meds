@@ -33,13 +33,14 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
-/** En iOS instalado como app, la ventana emergente no funciona bien. */
-function prefersRedirect() {
-    const standalone = window.navigator.standalone === true ||
-        window.matchMedia('(display-mode: standalone)').matches;
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    return standalone || iOS;
-}
+/**
+ * Se usa ventana emergente y no redirección.
+ *
+ * Con redirección, al volver de Google el navegador aísla el almacenamiento
+ * entre el dominio de la app (github.io) y el de autenticación
+ * (firebaseapp.com), la sesión se pierde y se vuelve a la pantalla de entrada.
+ * La ventana emergente se comunica por postMessage y no sufre ese problema.
+ */
 
 /**
  * Mientras la lista esté vacía, la app funciona sin inicio de sesión: así no
@@ -89,23 +90,23 @@ export function watchSession(onChange) {
  */
 export async function signIn() {
     try {
-        if (prefersRedirect()) {
-            await signInWithRedirect(auth, provider);
-            return { ok: true };   // la página se recarga sola
-        }
-
         const credential = await signInWithPopup(auth, provider);
         return { ok: true, user: credential.user };
     } catch (error) {
-        // Si la ventana emergente falla, se reintenta redirigiendo.
-        const popupFailed = [
+        console.error('Error al iniciar sesión:', error.code, error.message);
+        // Si el usuario cerró la ventana, no hay nada que reintentar.
+        if (error.code === 'auth/popup-closed-by-user' ||
+            error.code === 'auth/cancelled-popup-request') {
+            return { ok: false, error: '' };
+        }
+
+        // Último recurso cuando el navegador no permite ventanas emergentes.
+        const popupUnavailable = [
             'auth/popup-blocked',
-            'auth/popup-closed-by-user',
-            'auth/cancelled-popup-request',
             'auth/operation-not-supported-in-this-environment'
         ].includes(error.code);
 
-        if (popupFailed) {
+        if (popupUnavailable) {
             try {
                 await signInWithRedirect(auth, provider);
                 return { ok: true };
@@ -129,9 +130,12 @@ function describeAuthError(error) {
                 'Authentication → Settings → Authorized domains.';
         case 'auth/operation-not-allowed':
             return 'El proveedor de Google no está habilitado en Firebase.';
+        case 'auth/popup-blocked':
+            return 'El navegador bloqueó la ventana de Google. Permití las ' +
+                'ventanas emergentes para este sitio e intentá otra vez.';
         case 'auth/network-request-failed':
             return 'Sin conexión. Intentá de nuevo cuando tengas señal.';
         default:
-            return 'No se pudo iniciar sesión. Intentá de nuevo.';
+            return `No se pudo iniciar sesión (${(error && error.code) || 'sin código'}).`;
     }
 }
