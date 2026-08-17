@@ -1556,3 +1556,98 @@ img.gate__icon {
     border: 2px solid var(--accent-soft);
     background: var(--accent-soft);
 }
+
+/* --------------------------------------------------------------------------
+   Galería de Alana
+   -------------------------------------------------------------------------- */
+
+.gallery {
+    position: relative;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface-alt);
+    box-shadow: var(--shadow-sm);
+}
+
+.gallery__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gallery__track::-webkit-scrollbar {
+    display: none;
+}
+
+.gallery__slide {
+    flex: 0 0 100%;
+    margin: 0;
+    scroll-snap-align: center;
+}
+
+.gallery__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    /* La cara suele quedar en el tercio superior: se recorta desde ahí. */
+    object-position: center 32%;
+    background: var(--surface-alt);
+}
+
+/* Degradado para que la frase se lea sobre cualquier foto. */
+.gallery::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 58%;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(8, 20, 18, .82), rgba(8, 20, 18, 0));
+}
+
+.gallery__phrase {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 26px;
+    z-index: 2;
+    padding: 0 20px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 640;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    text-align: center;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .45);
+    cursor: pointer;
+}
+
+.gallery__dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9px;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.gallery__dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .45);
+    cursor: pointer;
+    transition: background .2s, transform .2s;
+}
+
+.gallery__dot--active {
+    background: #fff;
+    transform: scale(1.25);
+}

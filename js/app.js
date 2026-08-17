@@ -57,6 +57,10 @@ function refresh() {
         if (route === currentRoute) {
             section.innerHTML = VIEWS[route].render(state);
             section.hidden = false;
+            // Las vistas con partes que sobreviven al repintado las reinsertan acá.
+            if (typeof VIEWS[route].afterRender === 'function') {
+                VIEWS[route].afterRender(section);
+            }
         } else {
             section.hidden = true;
             section.innerHTML = '';

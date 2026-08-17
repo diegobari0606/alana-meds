@@ -10,6 +10,7 @@ import { dayAgenda, summarize } from '../schedule.js';
 import * as store from '../store.js';
 import { openSheet, closeSheet, toast, delegate, emptyState, sectionHeading, confirmAction } from '../ui.js';
 import { CATEGORIES, ROUTES } from '../seed.js';
+import { mountInto as mountGallery } from '../gallery.js';
 
 let viewDateKey = todayKey();
 
@@ -27,6 +28,7 @@ export function render(state) {
 
     return `
         <div class="view-enter">
+            <div id="gallery-slot"></div>
             ${renderDayBar(stats)}
             ${renderGlucoseCard(glucose, agenda)}
             ${renderAppointmentBanner(state)}
@@ -433,6 +435,14 @@ function openQuickLog(refresh) {
             });
         }
     });
+}
+
+/**
+ * Se ejecuta después de cada repintado: devuelve la galería a su hueco.
+ * Es el mismo nodo siempre, así que conserva la foto y el temporizador.
+ */
+export function afterRender(root) {
+    mountGallery(root.querySelector('#gallery-slot'));
 }
 
 /** Vuelve la vista al día de hoy (al cambiar de pestaña). */
