@@ -1539,3 +1539,20 @@ button {
     color: var(--text-muted);
     margin-top: 16px;
 }
+
+/* --------------------------------------------------------------------------
+   Foto de Alana en el encabezado y en la pantalla de acceso
+   -------------------------------------------------------------------------- */
+
+img.app-header__avatar {
+    object-fit: cover;
+    background: var(--accent-soft);
+}
+
+img.gate__icon {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border: 2px solid var(--accent-soft);
+    background: var(--accent-soft);
+}
